@@ -1,4 +1,4 @@
-# CTFTB — Channel Teams Feed To Bullets
+# CTFTB — Channel Teams Feed The Bear
 
 A Microsoft Teams bot that fetches all posts from a Teams channel for the current day, sends them to Claude, and returns a concise bulleted summary.
 
