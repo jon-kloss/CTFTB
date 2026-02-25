@@ -27,9 +27,61 @@ CTFTB/
 
 ### Azure Setup
 
-1. **Azure AD app registration** with `ChannelMessage.Read.All` application permission (admin-consented)
-2. **Bot Framework registration** with the messaging endpoint set to `https://<your-domain>/api/messages`
-3. **Bot installed** (sideloaded) in the target Teams team
+#### 1. Register an Azure AD Application
+
+1. Go to the [Azure Portal](https://portal.azure.com) and navigate to **Azure Active Directory** > **App registrations** > **New registration**
+2. Set the name to `CTFTB` (or whatever you prefer)
+3. Under **Supported account types**, select **Accounts in this organizational directory only (Single tenant)**
+4. Leave **Redirect URI** blank and click **Register**
+5. On the app's **Overview** page, copy the **Application (client) ID** — this is your `MICROSOFT_APP_ID`
+6. Also copy the **Directory (tenant) ID** — this is your `MICROSOFT_TENANT_ID`
+
+##### Create a Client Secret
+
+1. Go to **Certificates & secrets** > **Client secrets** > **New client secret**
+2. Add a description (e.g. "CTFTB bot secret"), pick an expiry, and click **Add**
+3. Copy the secret **Value** immediately (it won't be shown again) — this is your `MICROSOFT_APP_PASSWORD`
+
+##### Add Graph API Permissions
+
+1. Go to **API permissions** > **Add a permission** > **Microsoft Graph** > **Application permissions**
+2. Search for and add `ChannelMessage.Read.All`
+3. Click **Grant admin consent for [your organization]** (requires admin privileges)
+
+#### 2. Create a Bot Framework Registration
+
+1. In the Azure Portal, search for **Azure Bot** and click **Create**
+2. Fill in:
+   - **Bot handle**: a unique name (e.g. `ctftb-bot`)
+   - **Pricing tier**: F0 (free) is fine for development
+   - **Microsoft App ID**: select **Use existing app registration** and paste your `MICROSOFT_APP_ID` from step 1
+3. Click **Create** and wait for deployment
+4. Once deployed, go to the Bot resource > **Configuration**
+5. Set the **Messaging endpoint** to `https://<your-domain>/api/messages` (use your ngrok URL during development)
+6. Go to **Channels** > click **Microsoft Teams** > **Save** to enable the Teams channel
+
+#### 3. Install the Bot in Teams
+
+1. Go to the Bot resource > **Channels** > click **Open in Teams** under the Microsoft Teams channel — this lets you chat with the bot directly for testing
+2. To add the bot to a specific team/channel, create a Teams app package:
+   1. Create a `manifest.json` with your bot's App ID (see [Teams manifest schema](https://learn.microsoft.com/en-us/microsoftteams/platform/resources/schema/manifest-schema))
+   2. Include two icon PNGs (192x192 and 32x32)
+   3. Zip all three files together
+3. In Teams, go to **Apps** > **Manage your apps** > **Upload a custom app** > **Upload for my org** (or "Upload for me")
+4. Select the zip file and install it to the desired team
+
+#### 4. Find Your Team and Channel IDs
+
+You need `TEAMS_TEAM_ID` and `TEAMS_CHANNEL_ID` for your `.env` file. The easiest way to find them:
+
+1. In Teams, navigate to the channel you want to summarize
+2. Click the **three dots (...)** next to the channel name > **Get link to channel**
+3. The link looks like:
+   ```
+   https://teams.microsoft.com/l/channel/<CHANNEL_ID>/<channel-name>?groupId=<TEAM_ID>&tenantId=<TENANT_ID>
+   ```
+4. The `groupId` parameter is your `TEAMS_TEAM_ID`
+5. The first path segment after `/channel/` is your `TEAMS_CHANNEL_ID` (URL-decode it, e.g. `19%3A...` becomes `19:...`)
 
 ### API Keys
 
